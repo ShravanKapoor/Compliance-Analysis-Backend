@@ -6,10 +6,11 @@ import EngineeringIcon from "@mui/icons-material/Engineering";
 import PolicyIcon from "@mui/icons-material/Policy";
 import CategoryIcon from "@mui/icons-material/Category";
 import ApartmentIcon from "@mui/icons-material/Apartment";
+
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
-import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+
 const NAVIGATION = [
   {
     segment: "",
@@ -20,6 +21,8 @@ const NAVIGATION = [
     segment: "about",
     title: "About",
     icon: <ShoppingCartIcon />,
+  },
+  {
     segment: "organization",
     title: "Organizations",
     icon: <ApartmentIcon />,
@@ -53,13 +56,16 @@ const NAVIGATION = [
     icon: <LoginIcon />,
   },
 ];
+
 function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
+
   const router = {
     pathname: location.pathname,
     navigate: (path) => navigate(path),
   };
+
   return (
     <AppProvider
       navigation={NAVIGATION}

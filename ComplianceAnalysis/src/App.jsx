@@ -1,50 +1,50 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./Components/Layout";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./Pages/Dashboard";
 import About from "./Pages/About";
 import Oraganizations from "./Pages/Oraganizations";
 import Product from "./Pages/Product";
 import RuleAndPolicies from "./Pages/RuleAndPolicies";
 import ComplianceEngine from "./Pages/ComplianceEngine";
 import Reports from "./Pages/Reports";
-import Signup from "./pages/auth/Signup";
+import Signup from "./Auth/Signup";
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Layout />,   // parent layout
+      element: <Layout />,
       children: [
         {
-          path: "/",
+          index: true,
           element: <Dashboard />,
         },
         {
-          path: "/about",
+          path: "about",
           element: <About />,
         },
         {
-          path: "/organization",
+          path: "organization",
           element: <Oraganizations />,
         },
         {
-          path: "/products",
+          path: "products",
           element: <Product />,
         },
         {
-          path: "/rules-and-policies",
+          path: "rules-and-policies",
           element: <RuleAndPolicies />,
         },
         {
-          path: "/compliance-engine",
+          path: "compliance-engine",
           element: <ComplianceEngine />,
         },
         {
-          path: "/reports",
+          path: "reports",
           element: <Reports />,
         },
         {
-          path: "/signup",
+          path: "signup",
           element: <Signup />,
         },
       ],
