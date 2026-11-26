@@ -5,6 +5,7 @@ import authrouter from "./api/routes/auth.routes.js";
 import organizationRouter from "./api/routes/organization.routes.js";
 import frameworkRouter from "./api/routes/framework.route.js";
 import productRoute from "./api/routes/product.routes.js";
+import complianceRouter from "./api/routes/compliance.routes.js";
 import cors from "cors";
 dotenv.config();
 const app = express();
@@ -28,5 +29,6 @@ app.use("/api/auth", authrouter);
 app.use("/api/organization", organizationRouter);
 app.use("/api/framework", frameworkRouter);
 app.use("/api/product", productRoute)
+app.use("/api/compliance", complianceRouter);
 
 export default app;

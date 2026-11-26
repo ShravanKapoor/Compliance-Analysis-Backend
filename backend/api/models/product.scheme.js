@@ -64,6 +64,17 @@ const productSchema = new mongoose.Schema(
       ],
     },
 
+    //  evidence: statements/documents describing how the product meets
+    //  requirements (test reports, procedures, certifications...). The
+    //  compliance engine compares these with each framework control.
+    evidence: [
+      {
+        title: { type: String, trim: true },
+        content: { type: String, required: true },
+        addedAt: { type: Date, default: Date.now },
+      },
+    ],
+
     //  compliance :
     complianceStatus: {
       type: String,
@@ -73,6 +84,11 @@ const productSchema = new mongoose.Schema(
     complianceScore: {
       type: Number,
       default: 0,
+    },
+    lastAnalyzedAt: Date,
+    lastReport: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ComplianceReport",
     },
     vectorIndexed: {
       type: Boolean,

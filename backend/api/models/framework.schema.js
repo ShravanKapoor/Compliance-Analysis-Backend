@@ -58,6 +58,12 @@ const frameworkSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Set when the controls' vectors are stored in Qdrant
+    vectorIndexed: {
+      type: Boolean,
+      default: false,
+    },
+    indexedAt: Date,
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Auth",
