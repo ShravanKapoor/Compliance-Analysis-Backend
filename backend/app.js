@@ -14,12 +14,13 @@ app.use(express.json());
 app.use(cookieParser());
 
 // cors:
+// The frontend (Vite) runs on port 5173 by default. `credentials` must be
+// true for the browser to send the auth cookie.
 app.use(
     cors({
-        origin:"http://localhost:5000",
+        origin: process.env.CLIENT_URL || "http://localhost:5173",
         methods: ["GET","POST","PUT","PATCH","DELETE"],
-        credential: true,
-
+        credentials: true,
     }));
 
 //  routes

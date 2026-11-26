@@ -11,6 +11,8 @@ const authSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
+      trim: true,
     },
     password: {
       type: String,
@@ -29,20 +31,16 @@ const authSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-authSchema.pre("save",async function(next){
-    try{
-        const salt= await bcrypt.gensalt(10);
-        const hashedPassword =await bcrypt.hash(this.password, salt);
-        this.password = hashedPassword
-        next()
-    }catch(err) {
-        console.log(err)
-    }
-})
+// Hash the password whenever it is set or changed. This is the only place
+// passwords are hashed; controllers pass the plain password in.
+authSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 10);
+});
 
-authSchema.method.comparePassword = async function (enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password)
-}
+authSchema.methods.comparePassword = async function (enteredPassword) {
+  return bcrypt.compare(enteredPassword, this.password);
+};
 
 export const Auth = mongoose.model("Auth", authSchema);
 

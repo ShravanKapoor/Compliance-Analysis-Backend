@@ -29,10 +29,11 @@ export const createFrameWork = async (req, res, next) => {
       });
     }
 
-    const findFramwork = {
-      $or: [{ shortCode }, { version }],
-    };
-    const IsframeworkExist = await Framework.findOne(findFramwork);
+    // shortCode is the unique identifier. (Checking `version` as well wrongly
+    // treated any two frameworks with the same version number as duplicates.)
+    const IsframeworkExist = await Framework.findOne({
+      shortCode: shortCode.toUpperCase().trim(),
+    });
     if (IsframeworkExist) {
       return res.status(400).json({
         message: "Framework is already exist",
@@ -66,12 +67,9 @@ export const createFrameWork = async (req, res, next) => {
 
 export const getFramework = async (req, res, next) => {
   try {
-    const framework = await Framework.find({ isactive: true });
-    if (!framework || framework.length === 0) {
-      return res.status(400).json({
-        message: "No Framwork Exist",
-      });
-    }
+    // Field is `isActive`; the old `isactive` filter matched nothing.
+    // An empty list is a normal result, not an error.
+    const framework = await Framework.find({ isActive: true });
     return res.status(200).json({
       data: framework,
     });
