@@ -8,10 +8,12 @@ export const protect = async (req, res, next) => {
         message: "Unauthorized",
       });
     }
-    const decoded = await jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded) {
-      return res.status(400).json({
-        message: "Invalid token",
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return res.status(401).json({
+        message: "Invalid or expired token",
       });
     }
     req.user = decoded;
@@ -25,7 +27,7 @@ export const protect = async (req, res, next) => {
 
 export const isAdmin = async (req, res, next) => {
   try {
-    if (req.user.role !== "admin") {
+    if (req.user?.role !== "admin") {
       return res.status(403).json({
         message: "Access Denied",
       });

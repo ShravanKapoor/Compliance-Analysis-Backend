@@ -1,10 +1,10 @@
-import { HfInference } from "@huggingface/inference";
+import { InferenceClient } from "@huggingface/inference";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 // Initialize Hugging Face client
-const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
+const hf = new InferenceClient(process.env.HUGGINGFACE_API_KEY);
 
 /**
  * Generate a vector embedding for a given text chunk using a free Hugging Face model

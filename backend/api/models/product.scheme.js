@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { randomUUID } from "crypto";
-import { getEnabledCategories } from "trace_events";
 
 const productSchema = new mongoose.Schema(
   { 

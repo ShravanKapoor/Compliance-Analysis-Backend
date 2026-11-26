@@ -9,7 +9,6 @@ export const createOrganization = async (req, res, next) => {
       primaryContact,
       phoneNumber,
       website,
-      createdBy,
       identifiers,
     } = req.body;
 
@@ -19,11 +18,14 @@ export const createOrganization = async (req, res, next) => {
       });
     }
 
-    const isCompanyExists = {
-      $or:[{dbaName},{phoneNumber},{website}]
-    }
+    // Only compare fields that were actually sent. Including missing ones
+    // ({ website: undefined }) matched every company without a website,
+    // so a second company without one was rejected as a duplicate.
+    const duplicateChecks = [{ dbaName }];
+    if (phoneNumber) duplicateChecks.push({ phoneNumber });
+    if (website) duplicateChecks.push({ website });
 
-    const isCompany = await Organization.findOne(isCompanyExists)
+    const isCompany = await Organization.findOne({ $or: duplicateChecks })
     if(isCompany){
       return res.status(400).json({
         message:"Company already Exists",
@@ -55,12 +57,9 @@ export const createOrganization = async (req, res, next) => {
 
 export const getAllCompanies = async (req, res, next) => {
   try{
-    const companies = await Organization.find()
-    if(!companies || companies.length === 0){
-      return res.status(400).json({
-        message: "No Company availabe"
-      })
-    }
+    // Skip soft-deleted / deactivated companies. An empty list is a normal
+    // result, not an error.
+    const companies = await Organization.find({ isActive: true, deletedAt: null })
     return res.status(200).json({
       data: companies,
     });

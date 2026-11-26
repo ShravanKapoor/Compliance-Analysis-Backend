@@ -14,7 +14,7 @@ Backend (port 3000 by default):
 ```bash
 cd backend
 cp .env.example .env   # then fill in your own values
-npm install --legacy-peer-deps   # multer-storage-cloudinary declares an old Cloudinary peer
+npm install
 npm run dev
 ```
 

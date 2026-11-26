@@ -1,4 +1,4 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 import { randomUUID } from "crypto";
 
 const frameworkSchema = new mongoose.Schema(
@@ -18,7 +18,8 @@ const frameworkSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      upperCase: true,
+      uppercase: true,
+      trim: true,
     },
     description: String,
     version: {
@@ -42,7 +43,7 @@ const frameworkSchema = new mongoose.Schema(
         requirementText: String,
         mandatory: {
           type: Boolean,
-          deafult: true,
+          default: true,
         },
 
         riskLevel: {

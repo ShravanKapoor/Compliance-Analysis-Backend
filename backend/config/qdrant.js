@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const qdrantClient = new QdrantClient({
-  url: process.env.QUADRANT_CLUSTER_ENDPOINT,
-  apiKey: process.env.QUADRANT_API_KEY,
+  url: process.env.QDRANT_URL,
+  apiKey: process.env.QDRANT_API_KEY,
 });
 
 // Initialize Framework Collection

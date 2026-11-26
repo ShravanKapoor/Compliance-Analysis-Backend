@@ -1,4 +1,4 @@
-import qdrantClient from "./config/qdrant.js";
+import qdrantClient from "./qdrant.js";
 
 const createIndex = async () => {
   try {

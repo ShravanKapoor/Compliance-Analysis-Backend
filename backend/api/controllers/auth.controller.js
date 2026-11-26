@@ -1,12 +1,12 @@
 import { Auth } from "../models/auth.schema.js";
 import { genToken } from "../../utils/genTokens.js";
-import bcrypt from "bcrypt";
 
 // ================= SIGNUP =================
 export const signup = async (req, res, next) => {
   try {
-    console.log("run")
-    const { userName, email, password, role } = req.body;
+    // `role` is deliberately not read from the request: letting clients pick it
+    // would let anyone register as an admin. New accounts are always "user".
+    const { userName, email, password } = req.body;
 
     // Validation
     if (!userName || !email || !password) {
@@ -16,22 +16,18 @@ export const signup = async (req, res, next) => {
     }
 
     // Check existing user
-    const isUserExist = await Auth.findOne({ email });
+    const isUserExist = await Auth.findOne({ email: email.toLowerCase().trim() });
     if (isUserExist) {
       return res.status(400).json({
         message: "Email already exists",
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
+    // Create user (the model hashes the password before saving)
     const user = await Auth.create({
       userName,
       email,
-      password: hashedPassword,
-      role,
+      password,
     });
 
     return res.status(201).json({
@@ -59,29 +55,22 @@ export const signin = async (req, res, next) => {
     }
 
     // Check user
-    const user = await Auth.findOne({ email });
-    if (!user) {
-      return res.status(400).json({
-        message: "Email not found",
-      });
-    }
-
-    // Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({
-        message: "Invalid password",
+    // Same response for unknown email and wrong password, so the endpoint
+    // can't be used to find out which emails are registered.
+    const user = await Auth.findOne({ email: email.toLowerCase().trim() });
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(401).json({
+        message: "Invalid email or password",
       });
     }
 
     // Generate token
     const token = await genToken(user._id, user.userName , user.role);
-    console.log(token);
 
     return res.cookie("token", token ,{
         httpOnly: true,
         sameSite:"strict",
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
         maxAge: 24 * 60 * 60 * 1000, 
     }).status(200).json({
       message: "signin successful",
