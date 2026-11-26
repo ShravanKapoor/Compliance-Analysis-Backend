@@ -1,26 +1,51 @@
 import { InferenceClient } from "@huggingface/inference";
-import dotenv from "dotenv";
 
-dotenv.config();
+export const EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2";
+// all-MiniLM-L6-v2 produces 384-dimensional sentence vectors. The Qdrant
+// collection is created with this size, so the two must stay in sync.
+export const EMBEDDING_DIM = 384;
 
-// Initialize Hugging Face client
-const hf = new InferenceClient(process.env.HUGGINGFACE_API_KEY);
+const BATCH_SIZE = 32;
+
+let client;
+const getClient = () => {
+  if (!client) client = new InferenceClient(process.env.HUGGINGFACE_API_KEY);
+  return client;
+};
+
+const isVector = (v) =>
+  Array.isArray(v) && v.length === EMBEDDING_DIM && v.every((x) => typeof x === "number");
 
 /**
- * Generate a vector embedding for a given text chunk using a free Hugging Face model
- * @param {string} text - The text to vectorize
- * @returns {Promise<number[]>} - The vector embedding (array of numbers)
+ * Embed many texts at once. Returns one 384-number vector per input text,
+ * in the same order.
+ * @param {string[]} texts
+ * @returns {Promise<number[][]>}
  */
-export const generateEmbedding = async (text) => {
-  try {
-    const response = await hf.featureExtraction({
-      model: "sentence-transformers/all-MiniLM-L6-v2",
-      inputs: text,
+export const embedTexts = async (texts) => {
+  if (texts.length === 0) return [];
+  const vectors = [];
+  for (let i = 0; i < texts.length; i += BATCH_SIZE) {
+    const batch = texts.slice(i, i + BATCH_SIZE);
+    const output = await getClient().featureExtraction({
+      model: EMBEDDING_MODEL,
+      inputs: batch,
     });
-
-    return response;
-  } catch (error) {
-    console.error("❌ Error generating embedding:", error);
-    throw error;
+    // A list of inputs returns a list of vectors. Guard against shapes we
+    // don't expect (e.g. per-token output) instead of storing garbage.
+    if (!Array.isArray(output) || output.length !== batch.length || !output.every(isVector)) {
+      throw new Error(
+        `Unexpected embedding output from ${EMBEDDING_MODEL}: expected ${batch.length} vectors of length ${EMBEDDING_DIM}`,
+      );
+    }
+    vectors.push(...output);
   }
+  return vectors;
 };
+
+/**
+ * Generate a vector embedding for a single text.
+ * @param {string} text
+ * @returns {Promise<number[]>}
+ */
+export const generateEmbedding = async (text) => (await embedTexts([text]))[0];

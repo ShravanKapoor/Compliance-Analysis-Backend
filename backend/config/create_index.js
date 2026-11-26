@@ -1,16 +1,17 @@
-import qdrantClient from "./qdrant.js";
+// One-off setup script: `npm run qdrant:init`
+// Creates the Qdrant collection and payload index used by the compliance engine.
+import "dotenv/config";
+import { ensureFrameworkCollection, isQdrantConfigured, FRAMEWORK_COLLECTION } from "./qdrant.js";
 
-const createIndex = async () => {
-  try {
-    console.log("Creating payload index for frameworkId...");
-    await qdrantClient.createPayloadIndex("frameworks", {
-      field_name: "frameworkId",
-      field_schema: "keyword",
-    });
-    console.log("Index created successfully!");
-  } catch (error) {
-    console.error("Error creating index:", error.message);
-  }
-};
+if (!isQdrantConfigured()) {
+  console.error("QDRANT_URL is not set in .env");
+  process.exit(1);
+}
 
-createIndex();
+try {
+  await ensureFrameworkCollection();
+  console.log(`Qdrant collection '${FRAMEWORK_COLLECTION}' is ready.`);
+} catch (error) {
+  console.error("Error setting up Qdrant:", error.message);
+  process.exit(1);
+}
