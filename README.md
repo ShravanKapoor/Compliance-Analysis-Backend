@@ -28,6 +28,21 @@ npm run dev
 
 Never commit `.env`; it is ignored by `.gitignore`.
 
+In development the frontend's Vite server forwards `/api` requests to the backend on port 3000, so the app and the API share one origin and the login cookie works. To point it at another backend port, start Vite with `VITE_BACKEND_URL=http://localhost:4000 npm run dev`. In production, serve the built frontend (`npm run build`, output in `frontend/dist`) and the API from the same site, for example by routing `/api` to the backend. The login cookie is `SameSite=strict`, so a frontend on a different site can't sign in.
+
+## Frontend
+
+| Page | What it's for |
+|---|---|
+| Dashboard | Headline counts, products by status, open mandatory gaps, recent analyses, and a getting-started checklist |
+| Organizations | List and add companies |
+| Products | List and add products (with images and a first evidence item); open a product to manage its evidence, run an analysis and see its history |
+| Rules & Policies | Frameworks and their controls; admins add frameworks and re-index them |
+| Compliance Engine | Pick a product and frameworks, and run an analysis |
+| Reports | Every analysis; open one for the score, gaps and the result, reasoning and evidence for each control |
+
+Sign-up creates a regular user. To make someone an admin, set `role: "admin"` on their user in MongoDB.
+
 Backend tests: `cd backend && npm test`
 
 ## Compliance engine

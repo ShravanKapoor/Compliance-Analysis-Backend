@@ -73,7 +73,10 @@ export const getProducts = async (req, res, next) => {
       if (!isObjectId(req.query.company)) return res.status(400).json({ message: "company must be a valid id" });
       filter.company = req.query.company;
     }
-    const products = await Product.find(filter).select("-evidence").sort({ createdAt: -1 });
+    const products = await Product.find(filter)
+      .select("-evidence")
+      .populate("company", "legalName dbaName")
+      .sort({ createdAt: -1 });
     return res.status(200).json({ data: products });
   } catch (err) {
     return handleError(res, err);

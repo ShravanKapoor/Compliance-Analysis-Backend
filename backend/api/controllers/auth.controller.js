@@ -67,11 +67,9 @@ export const signin = async (req, res, next) => {
     // Generate token
     const token = await genToken(user._id, user.userName , user.role);
 
-    return res.cookie("token", token ,{
-        httpOnly: true,
-        sameSite:"strict",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 24 * 60 * 60 * 1000, 
+    return res.cookie("token", token, {
+        ...cookieOptions(),
+        maxAge: 24 * 60 * 60 * 1000,
     }).status(200).json({
       message: "signin successful",
       userId: user._id,
@@ -83,3 +81,31 @@ export const signin = async (req, res, next) => {
     });
   }
 };
+
+const cookieOptions = () => ({
+  httpOnly: true,
+  sameSite: "strict",
+  secure: process.env.NODE_ENV === "production",
+});
+
+// ================= CURRENT USER =================
+// The auth cookie is httpOnly, so the frontend asks who is signed in.
+export const me = async (req, res, next) => {
+  try {
+    const user = await Auth.findById(req.user.id).select("userName email role");
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    return res.status(200).json({
+      data: { id: user._id, userName: user.userName, email: user.email, role: user.role },
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+// ================= SIGNOUT =================
+export const signout = (req, res) => {
+  return res.clearCookie("token", cookieOptions()).status(200).json({ message: "Signed out" });
+};
+
